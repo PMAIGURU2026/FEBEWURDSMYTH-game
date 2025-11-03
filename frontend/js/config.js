@@ -6,7 +6,7 @@ const CONFIG = {
     // API Configuration
     API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3000/api'
-        : 'YOUR_NETLIFY_BACKEND_URL/api', // Will be updated during deployment
+        : 'https://febewurdsmyth.netlify.app/api', // Production Netlify URL
 
     // Game Settings
     MAX_GUESSES: 6,
