@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WURDSMYTH - An educational word game with multiple difficulty levels and game modes">
+    <title>WURDSMYTH - Word Wizard Game</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Fireworks Container -->
+    <div id="fireworks-container"></div>
+
+    <!-- Word Wizard Character -->
+    <div id="word-wizard" class="wizard-idle">
+        <div class="wizard-body">
+            <div class="wizard-hat">
+                <div class="star">✨</div>
+            </div>
+            <div class="wizard-face">
+                <div class="wizard-eyes">
+                    <span class="eye left">👁️</span>
+                    <span class="eye right">👁️</span>
+                </div>
+                <div class="wizard-mouth">😊</div>
+            </div>
+            <div class="wizard-robe">🔮</div>
+        </div>
+        <div class="wizard-speech-bubble" id="wizard-speech"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1 class="game-title">
+                <span class="title-word">WURDS</span><span class="title-myth">MYTH</span>
+            </h1>
+            <p class="tagline">Master words with the Word Wizard!</p>
+        </header>
+
+        <!-- Game Setup Screen -->
+        <div id="setup-screen" class="screen active">
+            <div class="setup-card">
+                <h2>🎮 Choose Your Quest</h2>
+
+                <div class="setup-section">
+                    <label for="game-mode">Game Mode:</label>
+                    <select id="game-mode" class="game-select">
+                        <option value="classic">🎯 Classic Wordle</option>
+                        <option value="fill_blank">✍️ Fill in the Blank</option>
+                        <option value="multiple_choice">📝 Multiple Choice</option>
+                    </select>
+                </div>
+
+                <div class="setup-section">
+                    <label for="difficulty">Difficulty Level:</label>
+                    <select id="difficulty" class="game-select">
+                        <option value="easy">🌱 Easy - Common Words</option>
+                        <option value="medium">🌿 Medium - Academic Words</option>
+                        <option value="hard">🌳 Hard - Advanced Vocabulary</option>
+                        <option value="expert">🏔️ Expert - Master Level</option>
+                    </select>
+                </div>
+
+                <div class="mode-description" id="mode-description">
+                    <p>Guess the hidden word in 6 tries. Each guess reveals clues about letter positions.</p>
+                </div>
+
+                <button id="start-game-btn" class="btn btn-primary btn-large">
+                    Start Adventure
+                </button>
+
+                <div class="stats-preview">
+                    <div class="stat">
+                        <span class="stat-icon">🎯</span>
+                        <span class="stat-label">Games Played</span>
+                        <span class="stat-value" id="total-games">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">🏆</span>
+                        <span class="stat-label">Win Rate</span>
+                        <span class="stat-value" id="win-rate">0%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-label">Best Score</span>
+                        <span class="stat-value" id="best-score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Rules -->
+            <div class="rules-card">
+                <h3>📖 How to Play</h3>
+                <div class="rules-content">
+                    <div class="rule">
+                        <strong>Classic Mode:</strong> Guess the word in 6 tries
+                        <ul>
+                            <li>🟩 Green: Correct letter in correct position</li>
+                            <li>🟨 Yellow: Correct letter in wrong position</li>
+                            <li>⬜ Gray: Letter not in word</li>
+                        </ul>
+                    </div>
+                    <div class="rule">
+                        <strong>Fill in the Blank:</strong> Read the sentence and complete it with the correct word
+                    </div>
+                    <div class="rule">
+                        <strong>Multiple Choice:</strong> Select the correct word from given options
+                    </div>
+                    <div class="rule">
+                        💡 <strong>Hover over any completed word</strong> to see its definition!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Play Screen -->
+        <div id="game-screen" class="screen">
+            <!-- Game Info Bar -->
+            <div class="game-info-bar">
+                <div class="game-info">
+                    <span class="info-label">Mode:</span>
+                    <span id="current-mode" class="info-value">Classic</span>
+                </div>
+                <div class="game-info">
+                    <span class="info-label">Level:</span>
+                    <span id="current-difficulty" class="info-value">Medium</span>
+                </div>
+                <div class="game-info">
+                    <span class="info-label">Score:</span>
+                    <span id="current-score" class="info-value">0</span>
+                </div>
+                <div class="game-info">
+                    <span class="info-label">Guesses:</span>
+                    <span id="guess-counter" class="info-value">0/6</span>
+                </div>
+            </div>
+
+            <!-- Context Content (for fill-in-blank and multiple choice) -->
+            <div id="context-content" class="context-content hidden">
+                <div id="definition-box" class="definition-box">
+                    <h3>📚 Definition</h3>
+                    <p id="word-definition"></p>
+                </div>
+                <div id="sentence-box" class="sentence-box">
+                    <h3>💭 Complete the sentence:</h3>
+                    <p id="word-sentence" class="sentence-text"></p>
+                </div>
+                <div id="choices-box" class="choices-box hidden">
+                    <h3>Choose the correct word:</h3>
+                    <div id="word-choices" class="word-choices"></div>
+                </div>
+            </div>
+
+            <!-- Game Board -->
+            <div id="game-board" class="game-board">
+                <!-- Rows will be generated dynamically -->
+            </div>
+
+            <!-- Keyboard -->
+            <div id="keyboard" class="keyboard">
+                <div class="keyboard-row">
+                    <button class="key" data-key="Q">Q</button>
+                    <button class="key" data-key="W">W</button>
+                    <button class="key" data-key="E">E</button>
+                    <button class="key" data-key="R">R</button>
+                    <button class="key" data-key="T">T</button>
+                    <button class="key" data-key="Y">Y</button>
+                    <button class="key" data-key="U">U</button>
+                    <button class="key" data-key="I">I</button>
+                    <button class="key" data-key="O">O</button>
+                    <button class="key" data-key="P">P</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key" data-key="A">A</button>
+                    <button class="key" data-key="S">S</button>
+                    <button class="key" data-key="D">D</button>
+                    <button class="key" data-key="F">F</button>
+                    <button class="key" data-key="G">G</button>
+                    <button class="key" data-key="H">H</button>
+                    <button class="key" data-key="J">J</button>
+                    <button class="key" data-key="K">K</button>
+                    <button class="key" data-key="L">L</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key key-large" data-key="ENTER">ENTER</button>
+                    <button class="key" data-key="Z">Z</button>
+                    <button class="key" data-key="X">X</button>
+                    <button class="key" data-key="C">C</button>
+                    <button class="key" data-key="V">V</button>
+                    <button class="key" data-key="B">B</button>
+                    <button class="key" data-key="N">N</button>
+                    <button class="key" data-key="M">M</button>
+                    <button class="key key-large" data-key="BACKSPACE">⌫</button>
+                </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <button id="hint-btn" class="btn btn-secondary">💡 Hint</button>
+                <button id="new-game-btn" class="btn btn-secondary">🔄 New Game</button>
+                <button id="quit-btn" class="btn btn-secondary">🏠 Main Menu</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen">
+            <div class="game-over-card">
+                <div id="result-icon" class="result-icon"></div>
+                <h2 id="result-title"></h2>
+                <div id="result-message" class="result-message"></div>
+
+                <div class="word-reveal">
+                    <p class="reveal-label">The word was:</p>
+                    <p id="revealed-word" class="revealed-word"></p>
+                    <div id="revealed-definition" class="revealed-definition"></div>
+                </div>
+
+                <div class="score-breakdown">
+                    <h3>📊 Score Breakdown</h3>
+                    <div class="score-item">
+                        <span>Base Score:</span>
+                        <span id="base-score">1000</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Guess Bonus:</span>
+                        <span id="guess-bonus">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Time Bonus:</span>
+                        <span id="time-bonus">0</span>
+                    </div>
+                    <div class="score-item total">
+                        <span>Total Score:</span>
+                        <span id="final-score">0</span>
+                    </div>
+                </div>
+
+                <div class="game-over-actions">
+                    <button id="play-again-btn" class="btn btn-primary btn-large">
+                        🎮 Play Again
+                    </button>
+                    <button id="main-menu-btn" class="btn btn-secondary">
+                        🏠 Main Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip for word definitions -->
+    <div id="definition-tooltip" class="definition-tooltip">
+        <div class="tooltip-content">
+            <h4 id="tooltip-word"></h4>
+            <p id="tooltip-definition"></p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
