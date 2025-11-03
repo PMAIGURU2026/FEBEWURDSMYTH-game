@@ -4,14 +4,13 @@ This guide will help you set up the Supabase database for the WURDSMYTH game.
 
 ## Prerequisites
 
-- Supabase account (already created)
-- Project ID: `nqfgblvxcgaodcpmrxua`
-- Supabase URL: `https://nqfgblvxcgaodcpmrxua.supabase.co`
+- Supabase account with a project created
+- Your Supabase project URL and credentials (found in Supabase Dashboard → Settings → API)
 
 ## Step 1: Create Database Tables
 
-1. Go to your Supabase project: https://supabase.com/dashboard/project/nqfgblvxcgaodcpmrxua
-2. Click on the **SQL Editor** in the left sidebar
+1. Go to your Supabase project dashboard (https://supabase.com/dashboard)
+2. Select your project and click on the **SQL Editor** in the left sidebar
 3. Click **New Query**
 4. Copy the contents of `backend/database/supabase_schema.sql`
 5. Paste it into the SQL editor
@@ -35,14 +34,16 @@ After running the SQL, verify the tables were created:
 
 ## Step 3: Environment Variables
 
-The `.env` file has already been configured with your credentials:
+Configure your local `.env` file with your credentials:
 
 ```env
-SUPABASE_URL=https://nqfgblvxcgaodcpmrxua.supabase.co
-SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_KEY=your_service_key_here
-JWT_SECRET=wurdsmyth-super-secret-key-2024
+SUPABASE_URL=<your-supabase-project-url>
+SUPABASE_ANON_KEY=<your-anon-public-key>
+SUPABASE_SERVICE_KEY=<your-service-role-key>
+JWT_SECRET=<your-custom-jwt-secret>
 ```
+
+You can find these values in your Supabase Dashboard → Settings → API
 
 ## Step 4: Configure Netlify
 
@@ -55,10 +56,10 @@ For production deployment, add these environment variables in Netlify:
 
 | Key | Value |
 |-----|-------|
-| `SUPABASE_URL` | `https://nqfgblvxcgaodcpmrxua.supabase.co` |
+| `SUPABASE_URL` | Your Supabase project URL |
 | `SUPABASE_ANON_KEY` | Your Supabase Anon Key |
 | `SUPABASE_SERVICE_KEY` | Your Supabase Service Key |
-| `JWT_SECRET` | `wurdsmyth-super-secret-key-2024` |
+| `JWT_SECRET` | Your custom JWT secret |
 
 5. Click **Save**
 6. Redeploy your site for the changes to take effect
@@ -151,8 +152,9 @@ The system includes 12 unlockable badges:
 
 ## Security Notes
 
-- The `.env` file is already in `.gitignore` - never commit it to Git
+- **NEVER commit the `.env` file to Git** - it's in `.gitignore`
 - The SUPABASE_SERVICE_KEY has full access - keep it secret
+- Only add secrets as Netlify environment variables, not in code
 - Row Level Security ensures users can only access their own data
 - Passwords are hashed with bcrypt before storage
 - JWT tokens expire after 7 days
@@ -160,8 +162,10 @@ The system includes 12 unlockable badges:
 ## Next Steps
 
 After setup is complete:
-1. Test user registration and login
-2. Play some games to verify progress tracking
-3. Check that badges are awarded correctly
-4. View the leaderboard
-5. Deploy to production on Netlify
+1. Add environment variables to Netlify (see Step 4 above)
+2. Run the SQL schema in Supabase (see Step 1 above)
+3. Test user registration and login locally
+4. Play some games to verify progress tracking
+5. Check that badges are awarded correctly
+6. View the leaderboard
+7. Deploy to production on Netlify
