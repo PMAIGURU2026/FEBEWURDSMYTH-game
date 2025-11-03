@@ -1,14 +1,14 @@
 /**
  * User Model - Manages user accounts, authentication, and progress
+ * Now using Supabase for persistent storage
  */
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const supabase = require('../config/supabase');
 
-// In-memory storage (for development - replace with database in production)
-const users = new Map();
-const userProgress = new Map();
+require('dotenv').config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'wurdsmyth-secret-key-change-in-production';
 
@@ -113,9 +113,11 @@ class UserModel {
     }
 
     // Check if user already exists
-    const existingUser = Array.from(users.values()).find(
-      u => u.username === username || u.email === email
-    );
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .or(`username.eq.${username},email.eq.${email}`)
+      .single();
 
     if (existingUser) {
       throw new Error('Username or email already exists');
@@ -126,44 +128,59 @@ class UserModel {
 
     // Create user
     const userId = uuidv4();
-    const user = {
-      id: userId,
-      username,
-      email,
-      password: hashedPassword,
-      createdAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString()
-    };
+    const now = new Date().toISOString();
+
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .insert({
+        id: userId,
+        username,
+        email,
+        password: hashedPassword,
+        created_at: now,
+        last_login: now
+      })
+      .select()
+      .single();
+
+    if (userError) {
+      throw new Error(`Failed to create user: ${userError.message}`);
+    }
 
     // Initialize user progress
-    const progress = {
-      userId,
-      level: 1,
-      xp: 0,
-      totalScore: 0,
-      gamesPlayed: 0,
-      gamesWon: 0,
-      gamesLost: 0,
-      currentStreak: 0,
-      bestStreak: 0,
-      winStreak: 0,
-      perfectGames: 0,
-      speedWins: 0,
-      expertWins: 0,
-      modesPlayed: new Set(),
-      badges: [],
-      achievements: [],
-      gameHistory: [],
-      statistics: {
-        easy: { played: 0, won: 0 },
-        medium: { played: 0, won: 0 },
-        hard: { played: 0, won: 0 },
-        expert: { played: 0, won: 0 }
-      }
-    };
+    const { data: progress, error: progressError } = await supabase
+      .from('user_progress')
+      .insert({
+        user_id: userId,
+        level: 1,
+        xp: 0,
+        total_score: 0,
+        games_played: 0,
+        games_won: 0,
+        games_lost: 0,
+        current_streak: 0,
+        best_streak: 0,
+        win_streak: 0,
+        perfect_games: 0,
+        speed_wins: 0,
+        expert_wins: 0,
+        modes_played: [],
+        badges: [],
+        achievements: [],
+        game_history: [],
+        statistics: {
+          easy: { played: 0, won: 0 },
+          medium: { played: 0, won: 0 },
+          hard: { played: 0, won: 0 },
+          expert: { played: 0, won: 0 }
+        }
+      })
+      .select()
+      .single();
 
-    users.set(userId, user);
-    userProgress.set(userId, progress);
+    if (progressError) {
+      throw new Error(`Failed to initialize progress: ${progressError.message}`);
+    }
 
     // Generate token
     const token = this.generateToken(userId);
@@ -180,9 +197,13 @@ class UserModel {
    */
   async login(username, password) {
     // Find user
-    const user = Array.from(users.values()).find(u => u.username === username);
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .single();
 
-    if (!user) {
+    if (userError || !user) {
       throw new Error('Invalid username or password');
     }
 
@@ -194,14 +215,21 @@ class UserModel {
     }
 
     // Update last login
-    user.lastLogin = new Date().toISOString();
-    users.set(user.id, user);
+    const now = new Date().toISOString();
+    await supabase
+      .from('users')
+      .update({ last_login: now })
+      .eq('id', user.id);
 
     // Generate token
     const token = this.generateToken(user.id);
 
     // Get progress
-    const progress = userProgress.get(user.id);
+    const { data: progress } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
 
     return {
       user: this.sanitizeUser(user),
@@ -232,9 +260,14 @@ class UserModel {
   /**
    * Get user by ID
    */
-  getUser(userId) {
-    const user = users.get(userId);
-    if (!user) {
+  async getUser(userId) {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) {
       throw new Error('User not found');
     }
     return this.sanitizeUser(user);
@@ -243,59 +276,67 @@ class UserModel {
   /**
    * Get user progress
    */
-  getProgress(userId) {
-    const progress = userProgress.get(userId);
-    if (!progress) {
+  async getProgress(userId) {
+    const { data: progress, error } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !progress) {
       throw new Error('Progress not found');
     }
-    return {
-      ...progress,
-      modesPlayed: Array.from(progress.modesPlayed)
-    };
+    return progress;
   }
 
   /**
    * Update game progress
    */
-  updateProgress(userId, gameResult) {
-    const progress = userProgress.get(userId);
-    if (!progress) {
+  async updateProgress(userId, gameResult) {
+    // Get current progress
+    const { data: progress, error: fetchError } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !progress) {
       throw new Error('Progress not found');
     }
 
     const { won, difficulty, gameMode, score, guesses, timeElapsed } = gameResult;
 
     // Update basic stats
-    progress.gamesPlayed++;
-    progress.totalScore += score || 0;
+    progress.games_played++;
+    progress.total_score += score || 0;
 
     if (won) {
-      progress.gamesWon++;
-      progress.currentStreak++;
-      progress.winStreak++;
+      progress.games_won++;
+      progress.current_streak++;
+      progress.win_streak++;
 
-      if (progress.currentStreak > progress.bestStreak) {
-        progress.bestStreak = progress.currentStreak;
+      if (progress.current_streak > progress.best_streak) {
+        progress.best_streak = progress.current_streak;
       }
 
       // Check for perfect game (1 guess)
       if (guesses === 1) {
-        progress.perfectGames++;
+        progress.perfect_games++;
       }
 
       // Check for speed win (under 30 seconds)
       if (timeElapsed && timeElapsed < 30000) {
-        progress.speedWins++;
+        progress.speed_wins++;
       }
 
       // Check for expert win
       if (difficulty === 'expert') {
-        progress.expertWins++;
+        progress.expert_wins++;
       }
     } else {
-      progress.gamesLost++;
-      progress.currentStreak = 0;
-      progress.winStreak = 0;
+      progress.games_lost++;
+      progress.current_streak = 0;
+      progress.win_streak = 0;
     }
 
     // Update difficulty stats
@@ -307,7 +348,9 @@ class UserModel {
     }
 
     // Track modes played
-    progress.modesPlayed.add(gameMode);
+    if (!progress.modes_played.includes(gameMode)) {
+      progress.modes_played.push(gameMode);
+    }
 
     // Add XP
     const xpGained = this.calculateXP(gameResult);
@@ -319,27 +362,49 @@ class UserModel {
     progress.level = newLevel;
 
     // Add to history
-    progress.gameHistory.unshift({
+    progress.game_history.unshift({
       ...gameResult,
       timestamp: new Date().toISOString(),
       xpGained
     });
 
     // Keep last 50 games
-    if (progress.gameHistory.length > 50) {
-      progress.gameHistory = progress.gameHistory.slice(0, 50);
+    if (progress.game_history.length > 50) {
+      progress.game_history = progress.game_history.slice(0, 50);
     }
 
     // Check for new badges
     const newBadges = this.checkBadges(progress);
 
-    userProgress.set(userId, progress);
+    // Update in database
+    const { error: updateError } = await supabase
+      .from('user_progress')
+      .update({
+        level: progress.level,
+        xp: progress.xp,
+        total_score: progress.total_score,
+        games_played: progress.games_played,
+        games_won: progress.games_won,
+        games_lost: progress.games_lost,
+        current_streak: progress.current_streak,
+        best_streak: progress.best_streak,
+        win_streak: progress.win_streak,
+        perfect_games: progress.perfect_games,
+        speed_wins: progress.speed_wins,
+        expert_wins: progress.expert_wins,
+        modes_played: progress.modes_played,
+        badges: progress.badges,
+        game_history: progress.game_history,
+        statistics: progress.statistics
+      })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      throw new Error(`Failed to update progress: ${updateError.message}`);
+    }
 
     return {
-      progress: {
-        ...progress,
-        modesPlayed: Array.from(progress.modesPlayed)
-      },
+      progress,
       newBadges,
       leveledUp,
       xpGained
@@ -388,6 +453,18 @@ class UserModel {
   checkBadges(progress) {
     const newBadges = [];
 
+    // Map camelCase to snake_case for database fields
+    const fieldMap = {
+      gamesPlayed: 'games_played',
+      gamesWon: 'games_won',
+      winStreak: 'win_streak',
+      perfectGames: 'perfect_games',
+      speedWins: 'speed_wins',
+      expertWins: 'expert_wins',
+      modesPlayed: 'modes_played',
+      level: 'level'
+    };
+
     Object.values(BADGES).forEach(badge => {
       // Skip if already has badge
       if (progress.badges.includes(badge.id)) {
@@ -397,11 +474,13 @@ class UserModel {
       // Check criteria
       let earned = true;
       for (const [key, value] of Object.entries(badge.criteria)) {
+        const dbField = fieldMap[key] || key;
+
         if (key === 'modesPlayed') {
-          if (progress.modesPlayed.size < value) {
+          if ((progress.modes_played || []).length < value) {
             earned = false;
           }
-        } else if ((progress[key] || 0) < value) {
+        } else if ((progress[dbField] || 0) < value) {
           earned = false;
         }
       }
@@ -425,8 +504,8 @@ class UserModel {
   /**
    * Get user badges with details
    */
-  getUserBadges(userId) {
-    const progress = this.getProgress(userId);
+  async getUserBadges(userId) {
+    const progress = await this.getProgress(userId);
     return progress.badges.map(badgeId => {
       return Object.values(BADGES).find(b => b.id === badgeId);
     }).filter(Boolean);
@@ -435,22 +514,38 @@ class UserModel {
   /**
    * Get leaderboard
    */
-  getLeaderboard(limit = 10) {
-    const allProgress = Array.from(userProgress.values());
+  async getLeaderboard(limit = 10) {
+    // Get all user progress sorted by total_score
+    const { data: allProgress, error } = await supabase
+      .from('user_progress')
+      .select('*')
+      .order('total_score', { ascending: false })
+      .limit(limit);
 
-    return allProgress
-      .sort((a, b) => b.totalScore - a.totalScore)
-      .slice(0, limit)
-      .map(progress => {
-        const user = users.get(progress.userId);
+    if (error) {
+      throw new Error(`Failed to fetch leaderboard: ${error.message}`);
+    }
+
+    // Get usernames for each entry
+    const leaderboard = await Promise.all(
+      allProgress.map(async (progress) => {
+        const { data: user } = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', progress.user_id)
+          .single();
+
         return {
-          username: user?.username,
+          username: user?.username || 'Unknown',
           level: progress.level,
-          totalScore: progress.totalScore,
-          gamesWon: progress.gamesWon,
+          totalScore: progress.total_score,
+          gamesWon: progress.games_won,
           badges: progress.badges.length
         };
-      });
+      })
+    );
+
+    return leaderboard;
   }
 
   /**

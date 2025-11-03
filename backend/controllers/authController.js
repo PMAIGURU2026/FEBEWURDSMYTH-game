@@ -52,10 +52,10 @@ exports.login = async (req, res) => {
  * Get current user profile
  * GET /api/auth/me
  */
-exports.getProfile = (req, res) => {
+exports.getProfile = async (req, res) => {
   try {
-    const user = User.getUser(req.userId);
-    const progress = User.getProgress(req.userId);
+    const user = await User.getUser(req.userId);
+    const progress = await User.getProgress(req.userId);
 
     res.status(200).json({
       user,
@@ -71,10 +71,10 @@ exports.getProfile = (req, res) => {
  * Update game progress
  * POST /api/auth/progress
  */
-exports.updateProgress = (req, res) => {
+exports.updateProgress = async (req, res) => {
   try {
     const gameResult = req.body;
-    const result = User.updateProgress(req.userId, gameResult);
+    const result = await User.updateProgress(req.userId, gameResult);
 
     res.status(200).json(result);
   } catch (error) {
@@ -87,9 +87,9 @@ exports.updateProgress = (req, res) => {
  * Get user badges
  * GET /api/auth/badges
  */
-exports.getBadges = (req, res) => {
+exports.getBadges = async (req, res) => {
   try {
-    const badges = User.getUserBadges(req.userId);
+    const badges = await User.getUserBadges(req.userId);
     const allBadges = User.getAllBadges();
 
     res.status(200).json({
@@ -106,10 +106,10 @@ exports.getBadges = (req, res) => {
  * Get leaderboard
  * GET /api/auth/leaderboard
  */
-exports.getLeaderboard = (req, res) => {
+exports.getLeaderboard = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
-    const leaderboard = User.getLeaderboard(limit);
+    const leaderboard = await User.getLeaderboard(limit);
 
     res.status(200).json({ leaderboard });
   } catch (error) {
