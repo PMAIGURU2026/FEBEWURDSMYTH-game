@@ -1,0 +1,23 @@
+{
+  "name": "wurdsmyth-game",
+  "version": "1.0.0",
+  "description": "Educational word game with multiple difficulty levels and game modes",
+  "main": "netlify/functions/api.js",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Building WURDSMYTH...'",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": ["word-game", "education", "vocabulary", "netlify", "serverless"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

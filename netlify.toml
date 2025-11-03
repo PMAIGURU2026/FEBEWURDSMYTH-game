@@ -1,20 +1,47 @@
+# Netlify Configuration for WURDSMYTH Game
+# Serverless Functions + Static Site
+
 [build]
-  command = "cd backend && npm install"
-  functions = "backend"
+  command = "npm install"
+  functions = "netlify/functions"
   publish = "frontend"
 
+# Environment variables
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirect all API calls to serverless function
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  to = "/.netlify/functions/api"
   status = 200
 
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 [dev]
-  command = "cd backend && npm run dev"
-  port = 3000
+  command = "cd backend && npm start"
+  port = 8888
   targetPort = 3000
-  framework = "#custom"
