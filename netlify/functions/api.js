@@ -8,14 +8,23 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-// Import game modules
+// Import models
 const Game = require('../../backend/models/Game');
+const User = require('../../backend/models/User');
+
+// Import utilities
 const {
   getRandomWordByLevel,
   isValidWord,
   getWordDetails,
   getWordsByLevel
 } = require('../../backend/config/wordList');
+
+// Import middleware
+const { authMiddleware, optionalAuth } = require('../../backend/middleware/auth');
+
+// Import controllers
+const authController = require('../../backend/controllers/authController');
 
 // Create Express app
 const app = express();
@@ -30,12 +39,39 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     message: 'WURDSMYTH API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    features: ['authentication', 'gamification', 'badges']
   });
 });
 
-// Start game
-app.post('/api/game/start', (req, res) => {
+// ==========================================
+// AUTHENTICATION ROUTES
+// ==========================================
+
+// Register
+app.post('/api/auth/register', authController.register);
+
+// Login
+app.post('/api/auth/login', authController.login);
+
+// Get profile (protected)
+app.get('/api/auth/me', authMiddleware, authController.getProfile);
+
+// Update progress (protected)
+app.post('/api/auth/progress', authMiddleware, authController.updateProgress);
+
+// Get badges (protected)
+app.get('/api/auth/badges', authMiddleware, authController.getBadges);
+
+// Get leaderboard (public)
+app.get('/api/auth/leaderboard', authController.getLeaderboard);
+
+// ==========================================
+// GAME ROUTES
+// ==========================================
+
+// Start game (with optional auth)
+app.post('/api/game/start', optionalAuth, (req, res) => {
   try {
     const { difficulty = 'medium', gameMode = 'classic' } = req.body;
     const sessionId = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -50,6 +86,7 @@ app.post('/api/game/start', (req, res) => {
       ...gameState,
       gameMode,
       difficulty,
+      userId: req.userId || null, // Attach user ID if logged in
       wordData: gameMode !== 'classic' ? {
         definition: wordData.definition,
         sentence: wordData.sentence,
