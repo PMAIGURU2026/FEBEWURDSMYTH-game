@@ -21,10 +21,18 @@ class APIService {
                 ...options
             });
 
+            // Check content type before parsing
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                // If not JSON, might be HTML error page (404, etc)
+                await response.text(); // Consume the response body
+                throw new Error(`API returned non-JSON response. Status: ${response.status}. The backend may not be running or deployed yet.`);
+            }
+
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'An error occurred');
+                throw new Error(data.error || `API error: ${response.status}`);
             }
 
             return data;
