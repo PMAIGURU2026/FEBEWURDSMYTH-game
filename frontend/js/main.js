@@ -264,6 +264,15 @@ async function checkAPIHealth() {
     }
 }
 
+function toggleMusic() {
+    const on = AudioEngine.toggle();
+    const btn = document.getElementById('music-btn');
+    if (btn) btn.textContent = on ? '🎵 Music: ON' : '🎵 Music: OFF';
+}
+
+// Click logo to toggle music
+document.querySelector('.header-logo-float')?.addEventListener('click', toggleMusic);
+
 checkAPIHealth();
 
 window.game = game;
