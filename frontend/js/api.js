@@ -133,6 +133,29 @@ class APIService {
     async healthCheck() {
         return this.fetch('/health');
     }
+
+    /**
+     * Save game result and update user stats (requires auth token)
+     * @param {Object} gameResult - { won, difficulty, mode, score, guesses }
+     * @param {string} token - JWT auth token
+     */
+    async saveGameResult(gameResult, token) {
+        return this.fetch('/auth/progress', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: JSON.stringify(gameResult)
+        });
+    }
+
+    /**
+     * Get current user profile and stats (requires auth token)
+     * @param {string} token - JWT auth token
+     */
+    async getUserProfile(token) {
+        return this.fetch('/auth/me', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+    }
 }
 
 // Create and export API instance

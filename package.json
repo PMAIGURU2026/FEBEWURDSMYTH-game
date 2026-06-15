@@ -1,15 +1,16 @@
 {
   "name": "wurdsmyth-game",
-  "version": "1.0.0",
-  "description": "Educational word game with multiple difficulty levels and game modes",
-  "main": "netlify/functions/api.js",
+  "version": "2.0.0",
+  "description": "Educational word game — vanilla JS frontend, Vercel serverless backend, Supabase database",
+  "main": "api/index.js",
   "scripts": {
-    "dev": "netlify dev",
-    "build": "echo 'Building WURDSMYTH...'",
-    "deploy": "netlify deploy --prod"
+    "dev": "node backend/server.js",
+    "build": "echo 'No build step required — static frontend'",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel"
   },
-  "keywords": ["word-game", "education", "vocabulary", "netlify", "serverless"],
-  "author": "",
+  "keywords": ["word-game", "education", "vocabulary", "vercel", "supabase", "serverless"],
+  "author": "Paula Lawton",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
@@ -23,6 +24,9 @@
     "dotenv": "^16.3.1"
   },
   "devDependencies": {
-    "netlify-cli": "^17.0.0"
+    "vercel": "^33.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

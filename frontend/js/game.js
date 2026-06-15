@@ -195,15 +195,13 @@ class GameManager {
     /**
      * Handle win condition
      */
-    handleWin() {
+    async handleWin() {
         ui.wizardSpeak(ui.getRandomMessage(CONFIG.WIZARD_MESSAGES.WIN));
         ui.wizardCelebrate();
         ui.showToast('Congratulations! You won!', 'success');
 
-        // Update statistics
-        this.updateStatistics(true);
+        await this.updateStatistics(true);
 
-        // Show game over screen after animation
         setTimeout(() => {
             ui.showGameOver(this.currentGame, this.wordData);
         }, 1500);
@@ -212,14 +210,12 @@ class GameManager {
     /**
      * Handle loss condition
      */
-    handleLoss() {
+    async handleLoss() {
         ui.wizardSpeak(ui.getRandomMessage(CONFIG.WIZARD_MESSAGES.LOSE));
         ui.showToast(`The word was ${this.currentGame.targetWord}`, 'info');
 
-        // Update statistics
-        this.updateStatistics(false);
+        await this.updateStatistics(false);
 
-        // Show game over screen after animation
         setTimeout(() => {
             ui.showGameOver(this.currentGame, this.wordData);
         }, 1500);
@@ -278,10 +274,10 @@ class GameManager {
     }
 
     /**
-     * Update and save statistics
+     * Update and save statistics (local + Supabase if logged in)
      * @param {boolean} isWin - Whether the game was won
      */
-    updateStatistics(isWin) {
+    async updateStatistics(isWin) {
         const stats = this.getStatistics();
 
         stats.totalGames++;
@@ -296,6 +292,37 @@ class GameManager {
 
         this.saveStatistics(stats);
         ui.updateStats(stats);
+
+        // Persist to Supabase if user is logged in
+        const token = localStorage.getItem('wurdsmyth_token');
+        if (token) {
+            try {
+                const result = await api.saveGameResult({
+                    won: isWin,
+                    difficulty: this.difficulty,
+                    mode: this.gameMode,
+                    score: this.currentGame.score || 0,
+                    guesses: this.currentGame.currentGuess,
+                    firstTry: isWin && this.currentGame.currentGuess === 1
+                }, token);
+
+                // Show badge notifications
+                if (result.newBadges && result.newBadges.length > 0) {
+                    result.newBadges.forEach(badge => {
+                        setTimeout(() => {
+                            ui.showToast(`${badge.icon} Badge earned: ${badge.name}!`, 'success');
+                        }, 2000);
+                    });
+                }
+
+                // Refresh dashboard
+                if (typeof loadUserDashboard === 'function') {
+                    loadUserDashboard();
+                }
+            } catch (err) {
+                console.error('Failed to save game result to Supabase:', err);
+            }
+        }
     }
 
     /**

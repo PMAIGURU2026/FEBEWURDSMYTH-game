@@ -1,344 +1,193 @@
-# 🎮 WURDSMYTH - Word Wizard Game
+# 🎮 WURDSMYTH — Word Wizard Game
 
-An interactive educational word game featuring multiple difficulty levels, game modes, and a magical word wizard companion! Built with vanilla JavaScript, Node.js, and Express.
+An interactive educational word game featuring multiple difficulty levels, game modes, a magical Word Wizard companion, user accounts powered by Supabase, and gamification badges/streaks. Built with vanilla JavaScript, Node.js, and Express, deployed on Vercel.
 
 ![WURDSMYTH Game](https://img.shields.io/badge/Game-WURDSMYTH-6366f1?style=for-the-badge)
+![Supabase](https://img.shields.io/badge/Database-Supabase-3ecf8e?style=for-the-badge)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)
 
 ## ✨ Features
 
-### 🎯 Multiple Game Modes
-- **Classic Wordle**: Guess the hidden word in 6 tries with color-coded feedback
-- **Fill in the Blank**: Complete sentences with contextual clues
-- **Multiple Choice**: Choose the correct word from four options
+### 🎯 Three Game Modes
+- **Classic Wordle** — Guess the hidden word in 6 tries with color-coded tile feedback
+- **Fill in the Blank** — Complete sentences using contextual definition clues
+- **Multiple Choice** — Choose the correct word from four options
 
 ### 📚 Four Difficulty Levels
-- **Easy**: Common everyday words
-- **Medium**: Academic vocabulary
-- **Hard**: Advanced Barron's-style words
-- **Expert**: Master-level vocabulary
+- **Easy** (10 pts) — Common everyday words
+- **Medium** (20 pts) — Academic vocabulary
+- **Hard** (30 pts) — Advanced Barron's-style words
+- **Expert** (50 pts) — Master-level vocabulary
+
+### 🏆 Gamification
+- **Points** — Earned per correct game based on difficulty
+- **Day Streaks** — Track consecutive days played; current & longest streak saved to Supabase
+- **Badges** — Five unlockable badges stored in your account:
+  - 🎮 First Play — play your first game
+  - 🔥 7-Day Streak — play 7 days in a row
+  - 💯 Century — earn 100 total points
+  - 🏆 Word Master — win an Expert-level game
+  - 🎯 Sharp Shooter — guess correctly on the very first try
 
 ### 🔮 Interactive Features
-- **Word Wizard Companion**: Animated character providing encouragement and hints
-- **Hover Tooltips**: See word definitions by hovering over completed tiles
-- **Fireworks Celebration**: Visual celebration on victory
-- **Score Tracking**: Points based on guesses and time
-- **Statistics**: Track your progress and win rate
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Game State Persistence**: Resume interrupted games
+- **Word Wizard Companion** — Animated character with contextual encouragement
+- **Hover Tooltips** — See word definitions on completed tiles
+- **Fireworks Celebration** — Visual effect on victory
+- **User Dashboard** — Streak, points, and badges displayed on the home screen
+- **Game State Persistence** — Resume interrupted games
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- npm (comes with Node.js)
-- Git
+- Node.js v18+
+- A free Supabase account (https://supabase.com)
+- A free Vercel account (https://vercel.com) for deployment
 
-### Local Development Setup
+### Local Development
 
-1. **Clone the repository**
-   ```bash
-   cd Desktop
-   git clone https://github.com/YOUR_USERNAME/FEBEWURDSMYTH-game.git
-   cd FEBEWURDSMYTH-game
-   ```
+```bash
+git clone https://github.com/PMAIGURU2026/FEBEWURDSMYTH-game.git
+cd FEBEWURDSMYTH-game
 
-2. **Install Backend Dependencies**
-   ```bash
-   cd backend
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. **Set Up Environment Variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env if needed (defaults work for local development)
-   ```
+# Set up environment variables
+cp backend/.env.example backend/.env
+# Fill in your Supabase credentials
 
-4. **Start the Backend Server**
-   ```bash
-   npm start
-   # Or for development with auto-reload:
-   npm run dev
-   ```
-   Backend will run on `http://localhost:3000`
+# Also fill in frontend/js/supabase-client.js with SUPABASE_URL and SUPABASE_ANON_KEY
 
-5. **Open the Frontend**
-   - Open `frontend/index.html` in your browser
-   - Or use a local server (recommended):
-   ```bash
-   # Using Python 3
-   cd frontend
-   python3 -m http.server 8000
-   ```
-   Then visit `http://localhost:8000`
+# Run the database schema in Supabase SQL Editor
+# (copy backend/database/supabase_schema.sql and run it)
+
+# Start the backend
+node backend/server.js
+
+# Open frontend/index.html in your browser (or serve it)
+python3 -m http.server 8080   # from inside the frontend/ folder
+```
+
+### Deploy to Vercel
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full instructions.
+
+---
 
 ## 📖 How to Play
 
 ### Classic Mode
-1. Guess a word of the specified length
-2. Press ENTER to submit
-3. Tiles change color to show your accuracy:
-   - 🟩 **Green**: Correct letter in correct position
-   - 🟨 **Yellow**: Correct letter in wrong position
-   - ⬜ **Gray**: Letter not in the word
-4. Use the clues to guess the word in 6 tries
+1. Guess a word matching the hidden word's length
+2. Press ENTER — tiles flip and change color:
+   - 🟩 **Green** — correct letter, correct position
+   - 🟨 **Yellow** — correct letter, wrong position
+   - ⬜ **Gray** — letter not in the word
+3. Use clues to find the word within 6 tries
 
-### Fill in the Blank Mode
-1. Read the definition and sentence
-2. Type the word that fits the blank
-3. You have 6 attempts
+### Fill in the Blank
+- Read the definition and example sentence, then type the missing word
 
-### Multiple Choice Mode
-1. Read the definition and sentence
-2. Click the correct word from four choices
-3. Be careful - wrong choices count against your attempts!
+### Multiple Choice
+- Read the definition and sentence, click the correct word from four options
 
-### Pro Tips
-- 💡 Click the wizard for encouragement
-- 🔍 Hover over tiles to see word definitions
-- 💾 Your game auto-saves - resume anytime!
-- 🎯 Use hints if you're stuck
+**Tips:** 💡 Click the wizard for encouragement · 🔍 Hover tiles for definitions · 💾 Games auto-save
 
-## 🌐 Deployment Instructions
-
-### Backend Deployment (Netlify Functions)
-
-1. **Install Netlify CLI**
-   ```bash
-   npm install -g netlify-cli
-   ```
-
-2. **Create Netlify Configuration**
-   The `netlify.toml` file is already included in the project.
-
-3. **Deploy Backend**
-   ```bash
-   cd backend
-   netlify login
-   netlify init
-   # Follow prompts to create a new site or link existing
-   netlify deploy --prod
-   ```
-
-4. **Note Your Backend URL**
-   After deployment, you'll get a URL like: `https://your-app.netlify.app`
-
-5. **Update Frontend Configuration**
-   Edit `frontend/js/config.js`:
-   ```javascript
-   API_BASE_URL: 'https://your-backend-url.netlify.app/api'
-   ```
-
-### Frontend Deployment (GitHub Pages)
-
-1. **Update API URL in Config**
-   Make sure `frontend/js/config.js` has your Netlify backend URL.
-
-2. **Push to GitHub**
-   ```bash
-   git add .
-   git commit -m "Prepare for GitHub Pages deployment"
-   git push origin main
-   ```
-
-3. **Enable GitHub Pages**
-   - Go to your repository on GitHub
-   - Click **Settings** → **Pages**
-   - Under "Source", select **main** branch
-   - Select **/frontend** as the folder
-   - Click **Save**
-
-4. **Access Your Game**
-   Your game will be live at: `https://YOUR_USERNAME.github.io/FEBEWURDSMYTH-game/`
-
-### Alternative: Deploy Both on Netlify
-
-1. **Create netlify.toml** (already included)
-
-2. **Deploy Everything**
-   ```bash
-   netlify login
-   netlify init
-   netlify deploy --prod
-   ```
-
-3. **Update Config**
-   If using same Netlify site, the API_BASE_URL can be relative:
-   ```javascript
-   API_BASE_URL: '/api'
-   ```
+---
 
 ## 📁 Project Structure
 
 ```
-WURDSMYTH/
+FEBEWURDSMYTH-game/
+├── api/
+│   └── index.js              # Vercel serverless function
 ├── frontend/
-│   ├── index.html          # Main HTML file
-│   ├── css/
-│   │   └── styles.css      # All styles and animations
-│   ├── js/
-│   │   ├── config.js       # Configuration and constants
-│   │   ├── api.js          # API service layer
-│   │   ├── ui.js           # UI management and animations
-│   │   ├── game.js         # Game logic
-│   │   └── main.js         # Application entry point
-│   └── assets/             # Images and other assets
+│   ├── index.html            # Main game page
+│   ├── auth.html             # Login / register page
+│   ├── css/styles.css        # All styles and animations
+│   └── js/
+│       ├── config.js         # App config and constants
+│       ├── supabase-client.js# Frontend Supabase JS client
+│       ├── api.js            # API service layer
+│       ├── ui.js             # UI management and animations
+│       ├── game.js           # Game logic
+│       └── main.js           # App entry point
 ├── backend/
-│   ├── server.js           # Express server setup
-│   ├── package.json        # Backend dependencies
-│   ├── .env.example        # Environment variables template
+│   ├── server.js             # Local Express dev server
 │   ├── config/
-│   │   └── wordList.js     # Vocabulary database
-│   ├── models/
-│   │   └── Game.js         # Game state management
+│   │   ├── supabase.js       # Supabase client (service key)
+│   │   └── wordList.js       # Vocabulary database
 │   ├── controllers/
-│   │   └── gameController.js # Game logic controllers
-│   ├── routes/
-│   │   └── gameRoutes.js   # API routes
-│   └── middleware/         # Custom middleware
-├── .gitignore              # Git ignore rules
-├── netlify.toml            # Netlify configuration
-└── README.md               # This file
+│   │   └── authController.js # Auth + progress endpoints
+│   ├── middleware/auth.js    # JWT middleware
+│   ├── models/
+│   │   ├── User.js           # User accounts + gamification
+│   │   └── Game.js           # In-memory game sessions
+│   └── database/
+│       └── supabase_schema.sql
+├── netlify/functions/api.js  # Legacy Netlify function (kept for reference)
+├── vercel.json               # Vercel routing + build config
+├── package.json
+├── DEPLOYMENT.md             # Deployment instructions
+└── NOTES.md                  # Architecture decisions
 ```
-
-## 🔧 API Endpoints
-
-### Game Management
-- `POST /api/game/start` - Start a new game
-- `POST /api/game/guess` - Submit a guess
-- `GET /api/game/:sessionId` - Get game state
-- `DELETE /api/game/:sessionId` - End game session
-
-### Word Management
-- `POST /api/game/validate` - Validate a word
-- `GET /api/game/words/:level` - Get words by difficulty
-- `GET /api/game/:sessionId/hint` - Get hint
-
-### Statistics
-- `GET /api/game/stats` - Get server statistics
-- `GET /api/health` - Health check
-
-## 🎨 Customization
-
-### Adding New Words
-Edit `backend/config/wordList.js` and add words to the appropriate difficulty level:
-
-```javascript
-{
-  word: 'EXAMPLE',
-  definition: 'A thing characteristic of its kind',
-  sentence: 'This is an ____ of a great word!',
-  choices: ['EXAMPLE', 'SAMPLE', 'INSTANCE', 'MODEL']
-}
-```
-
-### Changing Colors
-Edit CSS variables in `frontend/css/styles.css`:
-
-```css
-:root {
-    --primary-color: #6366f1;
-    --success-color: #10b981;
-    /* ... other colors */
-}
-```
-
-### Wizard Messages
-Edit messages in `frontend/js/config.js`:
-
-```javascript
-WIZARD_MESSAGES: {
-    WELCOME: ["Your custom message here!"]
-}
-```
-
-## 🐛 Troubleshooting
-
-### Backend won't start
-```bash
-# Check if port 3000 is in use
-lsof -ti:3000 | xargs kill -9
-
-# Reinstall dependencies
-cd backend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### CORS Errors
-Make sure your backend has CORS enabled (already configured in `server.js`)
-
-### Frontend can't connect to backend
-1. Check if backend is running
-2. Verify API_BASE_URL in `frontend/js/config.js`
-3. Check browser console for errors
-
-## 📊 Tech Stack
-
-### Frontend
-- Vanilla JavaScript (ES6+)
-- HTML5
-- CSS3 with Animations
-- Google Fonts (Poppins, Press Start 2P)
-
-### Backend
-- Node.js
-- Express.js
-- CORS middleware
-- dotenv for environment variables
-
-### Deployment
-- GitHub Pages (Frontend)
-- Netlify (Backend)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
-- Repository: [FEBEWURDSMYTH-game](https://github.com/YOUR_USERNAME/FEBEWURDSMYTH-game)
-
-## 🙏 Acknowledgments
-
-- Inspired by Wordle and educational vocabulary games
-- Word definitions based on Barron's vocabulary building approach
-- Icons and emojis from Unicode standard
-
-## 📧 Support
-
-If you encounter any issues or have questions:
-1. Check the [Issues](https://github.com/YOUR_USERNAME/FEBEWURDSMYTH-game/issues) page
-2. Create a new issue with detailed information
-3. Contact your professor if this is for academic purposes
-
-## 🎓 Academic Use
-
-This project was created as an educational full-stack web application demonstrating:
-- Frontend-backend integration
-- RESTful API design
-- Game state management
-- Responsive UI/UX design
-- Modern JavaScript practices
-- Deployment workflows
 
 ---
 
-Made with ❤️ and ✨ by a Word Wizard Apprentice
+## 🔧 API Endpoints
 
-**Live Demo**: [Your GitHub Pages URL]
-**API Backend**: [Your Netlify URL]
-**Repository**: [Your GitHub Repository URL]
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/health` | — | Health check |
+| POST | `/api/auth/register` | — | Create account |
+| POST | `/api/auth/login` | — | Login |
+| GET | `/api/auth/me` | JWT | Profile + stats |
+| POST | `/api/auth/progress` | JWT | Save game result |
+| GET | `/api/auth/badges` | JWT | Earned badges |
+| GET | `/api/auth/leaderboard` | — | Top players |
+| POST | `/api/game/start` | optional | Start game |
+| POST | `/api/game/guess` | — | Submit guess |
+| POST | `/api/game/validate` | — | Validate word |
+| GET | `/api/game/:id` | — | Game state |
+| DELETE | `/api/game/:id` | — | End session |
+
+---
+
+## 📊 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Vanilla JavaScript (ES6+), HTML5, CSS3 |
+| Backend | Node.js, Express.js |
+| Database | Supabase (PostgreSQL) |
+| Auth | Custom JWT (bcrypt + jsonwebtoken) |
+| Deployment | Vercel (serverless functions + static hosting) |
+
+---
+
+## 👩‍💻 Author
+
+**Paula Lawton**
+- GitHub: [@PMAIGURU2026](https://github.com/PMAIGURU2026)
+- Email: paula.lawton@pursuit.org
+- Repository: [FEBEWURDSMYTH-game](https://github.com/PMAIGURU2026/FEBEWURDSMYTH-game)
+
+---
+
+## 🎓 Academic Use
+
+Created at Pursuit (L2/L3 portfolio project) demonstrating:
+- Full-stack JavaScript development
+- Supabase database integration
+- Serverless architecture on Vercel
+- JWT-based authentication
+- Gamification systems (points, streaks, badges)
+- Responsive UI/UX design
+
+---
+
+**Live Demo:** https://febewurdsmyth.vercel.app  
+**API Backend:** https://febewurdsmyth.vercel.app/api/health  
+**Repository:** https://github.com/PMAIGURU2026/FEBEWURDSMYTH-game

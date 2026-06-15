@@ -9,6 +9,95 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <style>
+        /* ── User Dashboard ── */
+        .user-dashboard {
+            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .dashboard-greeting {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.35); }
+        .dashboard-stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .dash-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 8px 16px;
+            flex: 1;
+            min-width: 70px;
+        }
+        .dash-icon { font-size: 1.3rem; }
+        .dash-label { font-size: 0.68rem; opacity: 0.85; margin-top: 2px; }
+        .dash-value { font-size: 1.3rem; font-weight: 800; line-height: 1.2; }
+        .badge-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .badge-chip {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .guest-banner {
+            background: #f1f5f9;
+            border: 2px dashed #6366f1;
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .guest-text { color: #475569; font-size: 0.9rem; }
+        .btn-sign-in {
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .btn-sign-in:hover { background: #4f46e5; }
+    </style>
 </head>
 <body>
     <!-- Fireworks Container -->
@@ -45,6 +134,39 @@
         <!-- Game Setup Screen -->
         <div id="setup-screen" class="screen active">
             <div class="setup-card">
+
+                <!-- Logged-in user dashboard -->
+                <div id="user-dashboard" class="user-dashboard hidden">
+                    <div class="dashboard-header">
+                        <span class="dashboard-greeting" id="user-greeting">Welcome back!</span>
+                        <button class="btn-logout" id="logout-btn">Logout</button>
+                    </div>
+                    <div class="dashboard-stats">
+                        <div class="dash-stat">
+                            <span class="dash-icon">🔥</span>
+                            <span class="dash-value" id="dash-streak">0</span>
+                            <span class="dash-label">Day Streak</span>
+                        </div>
+                        <div class="dash-stat">
+                            <span class="dash-icon">⭐</span>
+                            <span class="dash-value" id="dash-points">0</span>
+                            <span class="dash-label">Points</span>
+                        </div>
+                        <div class="dash-stat">
+                            <span class="dash-icon">🏅</span>
+                            <span class="dash-value" id="dash-badges">0</span>
+                            <span class="dash-label">Badges</span>
+                        </div>
+                    </div>
+                    <div class="badge-row" id="badge-row"></div>
+                </div>
+
+                <!-- Guest banner (shown when not logged in) -->
+                <div id="guest-banner" class="guest-banner hidden">
+                    <span class="guest-text">🎮 Playing as guest — sign in to save progress & earn badges!</span>
+                    <button class="btn-sign-in" onclick="window.location.href='auth.html'">Sign In</button>
+                </div>
+
                 <h2>🎮 Choose Your Quest</h2>
 
                 <div class="setup-section">
@@ -265,6 +387,8 @@
 
     <!-- Scripts -->
     <script src="js/config.js"></script>
+    <script src="js/env-config.js"></script>
+    <script src="js/supabase-client.js"></script>
     <script src="js/api.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/game.js"></script>

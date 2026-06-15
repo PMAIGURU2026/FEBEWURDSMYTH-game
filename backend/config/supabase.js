@@ -1,6 +1,6 @@
 /**
- * Supabase Client Configuration
- * Initializes and exports Supabase client for database operations
+ * Supabase server-side client (uses service role key for full DB access).
+ * Credentials must be in .env locally or Vercel environment variables in production.
  */
 
 require('dotenv').config();
@@ -10,16 +10,15 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Missing Supabase credentials. Please check your .env file.');
-  process.exit(1);
+  // Warn but do not exit — lets the app start even without DB (game routes still work)
+  console.warn(
+    '[Supabase] Missing SUPABASE_URL or SUPABASE_SERVICE_KEY. ' +
+    'Auth and progress features will fail. Set these in .env or Vercel env vars.'
+  );
 }
 
-// Create Supabase client with service role key for full access
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
+const supabase = createClient(supabaseUrl || '', supabaseServiceKey || '', {
+  auth: { autoRefreshToken: false, persistSession: false }
 });
 
 module.exports = supabase;
