@@ -135,20 +135,20 @@ class UserModel {
       throw new Error('Username, email, and password are required');
     }
 
-    // Check duplicates
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id')
-      .or(`username.eq.${username},email.eq.${email}`)
-      .maybeSingle();
+    // Check duplicates — two separate queries to avoid .or() parsing issues
+    const { data: byUsername } = await supabase
+      .from('users').select('id').eq('username', username).maybeSingle();
+    const { data: byEmail } = await supabase
+      .from('users').select('id').eq('email', email.toLowerCase()).maybeSingle();
 
-    if (existing) throw new Error('Username or email already in use');
+    if (byUsername) throw new Error('Username already taken');
+    if (byEmail) throw new Error('Email already in use');
 
     const hashed = await bcrypt.hash(password, 10);
 
     const { data: user, error: uErr } = await supabase
       .from('users')
-      .insert({ email, username, password: hashed })
+      .insert({ email: email.toLowerCase(), username, password: hashed })
       .select()
       .single();
 
